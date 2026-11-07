@@ -42,9 +42,9 @@
       const rules = [
         { regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, label: '[REDACTED_EMAIL]' },
         { regex: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g, label: '[REDACTED_IP]' },
-        { regex: /\b(?:sk-[a-zA-Z0-9]{16,}|AIza[0-9A-Za-z-_]{35})\b/g, label: '[REDACTED_API_KEY]' },
-        { regex: /\b(?:\d[ -]*?){13,16}\b/g, label: '[REDACTED_CARD_OR_ID]' },
-        { regex: /(?:\+?\d{1,3}[\s-]?)?\(?\d{3,4}\)?[\s-]?\d{3}[\s-]?\d{4}\b/g, label: '[REDACTED_PHONE]' }
+        { regex: /\b(?:sk-[A-Za-z0-9]{16,}|AIza[0-9A-Za-z-_]{35})\b/g, label: '[REDACTED_API_KEY]' },
+        { regex: /(?<!\d)(?:\d[ -]?){13,19}(?!\d)/g, label: '[REDACTED_CARD]' },
+        { regex: /(?:(?:\+?\d{1,3})[\s.-]?)?(?:\(?\d{2,4}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}\b/g, label: '[REDACTED_PHONE]' }
       ];
 
       rules.forEach(rule => {
@@ -58,11 +58,16 @@
       document.getElementById('stats').textContent = `Scrubbed ${count} sensitive item(s).`;
     }
 
-    function copyOutput() {
+    async function copyOutput() {
       const out = document.getElementById('output');
       if (!out.value) return;
-      navigator.clipboard.writeText(out.value);
-      document.getElementById('stats').textContent = 'Copied clean text to clipboard!';
+
+      try {
+        await navigator.clipboard.writeText(out.value);
+        document.getElementById('stats').textContent = 'Copied clean text to clipboard!';
+      } catch (err) {
+        document.getElementById('stats').textContent = 'Copy failed. Please copy the cleaned text manually.';
+      }
     }
 
     function clearAll() {
